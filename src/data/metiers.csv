@@ -1,0 +1,9 @@
+JobID,JobTitle,Description,Level,RequiredCompetencies,KeyBlocs,MinThreshold
+J01,Data Analyst,Analyse et interprétation des données pour aider à la prise de décision,Junior à Senior,"C01;C02;C03;C04;C05","B1",0.6
+J02,Data Scientist,Conception de modèles prédictifs et solutions d'intelligence artificielle,Senior,"C01;C02;C04;C06;C07;C08;C09;C10","B1;B2",0.65
+J03,Machine Learning Engineer,Industrialisation et déploiement de modèles ML en production,Senior,"C04;C06;C07;C08;C09;C16;C18","B2;B4",0.65
+J04,NLP Engineer,Spécialiste du traitement automatique du langage naturel,Senior,"C04;C08;C11;C12;C13;C14;C15","B3;B2",0.6
+J05,Data Engineer,Conception et maintenance de l'infrastructure de données,Mid à Senior,"C04;C05;C16;C17;C18;C19;C20","B4;B1",0.6
+J06,AI Engineer,Développement de solutions d'IA générative et de systèmes intelligents,Senior,"C04;C08;C13;C21;C22;C23;C24;C25","B5;B3;B2",0.65
+J07,Business Intelligence Analyst,Création de rapports et tableaux de bord pour le pilotage d'entreprise,Junior à Mid,"C01;C02;C03;C05","B1",0.55
+J08,MLOps Engineer,Automatisation et gestion du cycle de vie des modèles ML,Senior,"C09;C16;C18;C19;C20","B4;B2",0.6

@@ -1,0 +1,6 @@
+BlocID,BlocName,Description,Weight
+B1,Analyse de Données,Compétences fondamentales en analyse et exploration de données,1.0
+B2,Machine Learning,Conception et implémentation de modèles d'apprentissage automatique,1.2
+B3,NLP - Traitement du Langage,Traitement automatique du langage naturel,1.1
+B4,Data Engineering,Ingénierie et architecture de données,1.0
+B5,IA Générative,Intégration et utilisation de l'IA générative,1.1

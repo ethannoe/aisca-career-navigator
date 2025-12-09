@@ -1,0 +1,264 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-12-09",
+  "description": "Référentiel AISCA - Compétences Data Engineering & AI",
+  
+  "blocs": [
+    {
+      "id": "B1",
+      "nom": "Analyse de Données",
+      "description": "Compétences fondamentales en analyse et exploration de données",
+      "poids": 1.0,
+      "competences": [
+        { "id": "C01", "nom": "Nettoyage de données", "description": "Capacité à identifier et corriger les données manquantes, aberrantes ou incohérentes" },
+        { "id": "C02", "nom": "Visualisation de données", "description": "Création de graphiques et tableaux de bord pour communiquer des insights" },
+        { "id": "C03", "nom": "Statistiques descriptives", "description": "Calcul et interprétation de mesures statistiques (moyenne, médiane, écart-type)" },
+        { "id": "C04", "nom": "Programmation Python", "description": "Maîtrise de Python pour l'analyse de données (Pandas, NumPy)" },
+        { "id": "C05", "nom": "SQL et bases de données", "description": "Requêtes SQL et manipulation de bases de données relationnelles" }
+      ]
+    },
+    {
+      "id": "B2",
+      "nom": "Machine Learning",
+      "description": "Conception et implémentation de modèles d'apprentissage automatique",
+      "poids": 1.2,
+      "competences": [
+        { "id": "C06", "nom": "Classification", "description": "Algorithmes de classification supervisée (SVM, Random Forest, etc.)" },
+        { "id": "C07", "nom": "Régression", "description": "Modèles de régression pour la prédiction de valeurs continues" },
+        { "id": "C08", "nom": "Réseaux de neurones", "description": "Conception et entraînement de réseaux neuronaux profonds" },
+        { "id": "C09", "nom": "Évaluation de modèles", "description": "Métriques et techniques de validation (cross-validation, ROC, F1-score)" },
+        { "id": "C10", "nom": "Feature Engineering", "description": "Création et sélection de variables prédictives pertinentes" }
+      ]
+    },
+    {
+      "id": "B3",
+      "nom": "NLP - Traitement du Langage",
+      "description": "Traitement automatique du langage naturel",
+      "poids": 1.1,
+      "competences": [
+        { "id": "C11", "nom": "Tokenization", "description": "Segmentation du texte en unités significatives (mots, sous-mots)" },
+        { "id": "C12", "nom": "Word Embeddings", "description": "Représentations vectorielles de mots (Word2Vec, GloVe, FastText)" },
+        { "id": "C13", "nom": "Transformers", "description": "Modèles de type BERT, GPT pour le traitement du langage" },
+        { "id": "C14", "nom": "Analyse sémantique", "description": "Extraction du sens et des relations dans les textes" },
+        { "id": "C15", "nom": "Sentiment Analysis", "description": "Classification des opinions et émotions dans les textes" }
+      ]
+    },
+    {
+      "id": "B4",
+      "nom": "Data Engineering",
+      "description": "Ingénierie et architecture de données",
+      "poids": 1.0,
+      "competences": [
+        { "id": "C16", "nom": "ETL/ELT", "description": "Pipelines d'extraction, transformation et chargement de données" },
+        { "id": "C17", "nom": "Big Data", "description": "Technologies distribuées (Spark, Hadoop) pour le traitement massif" },
+        { "id": "C18", "nom": "Cloud Computing", "description": "Services cloud (AWS, GCP, Azure) pour le stockage et le calcul" },
+        { "id": "C19", "nom": "Orchestration", "description": "Outils d'orchestration de workflows (Airflow, Prefect)" },
+        { "id": "C20", "nom": "Data Quality", "description": "Monitoring et assurance qualité des données" }
+      ]
+    },
+    {
+      "id": "B5",
+      "nom": "IA Générative",
+      "description": "Intégration et utilisation de l'IA générative",
+      "poids": 1.1,
+      "competences": [
+        { "id": "C21", "nom": "Prompt Engineering", "description": "Conception de prompts efficaces pour les LLMs" },
+        { "id": "C22", "nom": "RAG", "description": "Retrieval-Augmented Generation pour l'IA contextualisée" },
+        { "id": "C23", "nom": "Fine-tuning", "description": "Adaptation de modèles pré-entraînés à des tâches spécifiques" },
+        { "id": "C24", "nom": "API LLM", "description": "Intégration d'APIs de modèles de langage (OpenAI, Gemini)" },
+        { "id": "C25", "nom": "Agents IA", "description": "Conception de systèmes IA autonomes et multi-agents" }
+      ]
+    }
+  ],
+  
+  "metiers": [
+    {
+      "id": "J01",
+      "titre": "Data Analyst",
+      "description": "Analyse et interprétation des données pour aider à la prise de décision",
+      "niveau": "Junior à Senior",
+      "competencesRequises": ["C01", "C02", "C03", "C04", "C05"],
+      "blocsClés": ["B1"],
+      "seuilMinimum": 0.6
+    },
+    {
+      "id": "J02",
+      "titre": "Data Scientist",
+      "description": "Conception de modèles prédictifs et solutions d'intelligence artificielle",
+      "niveau": "Senior",
+      "competencesRequises": ["C01", "C02", "C04", "C06", "C07", "C08", "C09", "C10"],
+      "blocsClés": ["B1", "B2"],
+      "seuilMinimum": 0.65
+    },
+    {
+      "id": "J03",
+      "titre": "Machine Learning Engineer",
+      "description": "Industrialisation et déploiement de modèles ML en production",
+      "niveau": "Senior",
+      "competencesRequises": ["C04", "C06", "C07", "C08", "C09", "C16", "C18"],
+      "blocsClés": ["B2", "B4"],
+      "seuilMinimum": 0.65
+    },
+    {
+      "id": "J04",
+      "titre": "NLP Engineer",
+      "description": "Spécialiste du traitement automatique du langage naturel",
+      "niveau": "Senior",
+      "competencesRequises": ["C04", "C08", "C11", "C12", "C13", "C14", "C15"],
+      "blocsClés": ["B3", "B2"],
+      "seuilMinimum": 0.6
+    },
+    {
+      "id": "J05",
+      "titre": "Data Engineer",
+      "description": "Conception et maintenance de l'infrastructure de données",
+      "niveau": "Mid à Senior",
+      "competencesRequises": ["C04", "C05", "C16", "C17", "C18", "C19", "C20"],
+      "blocsClés": ["B4", "B1"],
+      "seuilMinimum": 0.6
+    },
+    {
+      "id": "J06",
+      "titre": "AI Engineer",
+      "description": "Développement de solutions d'IA générative et de systèmes intelligents",
+      "niveau": "Senior",
+      "competencesRequises": ["C04", "C08", "C13", "C21", "C22", "C23", "C24", "C25"],
+      "blocsClés": ["B5", "B3", "B2"],
+      "seuilMinimum": 0.65
+    },
+    {
+      "id": "J07",
+      "titre": "Business Intelligence Analyst",
+      "description": "Création de rapports et tableaux de bord pour le pilotage d'entreprise",
+      "niveau": "Junior à Mid",
+      "competencesRequises": ["C01", "C02", "C03", "C05"],
+      "blocsClés": ["B1"],
+      "seuilMinimum": 0.55
+    },
+    {
+      "id": "J08",
+      "titre": "MLOps Engineer",
+      "description": "Automatisation et gestion du cycle de vie des modèles ML",
+      "niveau": "Senior",
+      "competencesRequises": ["C09", "C16", "C18", "C19", "C20"],
+      "blocsClés": ["B4", "B2"],
+      "seuilMinimum": 0.6
+    }
+  ],
+  
+  "questions": {
+    "likert": [
+      {
+        "id": "Q_L1",
+        "texte": "Quel est votre niveau de maîtrise en programmation Python ?",
+        "competencesLiees": ["C04"],
+        "bloc": "B1"
+      },
+      {
+        "id": "Q_L2",
+        "texte": "Quel est votre niveau d'expérience avec les techniques de Machine Learning ?",
+        "competencesLiees": ["C06", "C07", "C08"],
+        "bloc": "B2"
+      },
+      {
+        "id": "Q_L3",
+        "texte": "Quel est votre niveau de maîtrise des outils de visualisation de données ?",
+        "competencesLiees": ["C02"],
+        "bloc": "B1"
+      },
+      {
+        "id": "Q_L4",
+        "texte": "Quel est votre niveau d'expérience avec SQL et les bases de données ?",
+        "competencesLiees": ["C05"],
+        "bloc": "B1"
+      },
+      {
+        "id": "Q_L5",
+        "texte": "Quel est votre niveau de connaissance en traitement du langage naturel (NLP) ?",
+        "competencesLiees": ["C11", "C12", "C13", "C14"],
+        "bloc": "B3"
+      },
+      {
+        "id": "Q_L6",
+        "texte": "Quel est votre niveau d'expérience avec les services Cloud (AWS, GCP, Azure) ?",
+        "competencesLiees": ["C18"],
+        "bloc": "B4"
+      },
+      {
+        "id": "Q_L7",
+        "texte": "Quel est votre niveau de maîtrise de l'IA Générative et des LLMs ?",
+        "competencesLiees": ["C21", "C22", "C24"],
+        "bloc": "B5"
+      }
+    ],
+    "ouvertes": [
+      {
+        "id": "Q_O1",
+        "texte": "Décrivez un projet d'analyse de données que vous avez réalisé. Quels outils et techniques avez-vous utilisés ?",
+        "blocsLies": ["B1"],
+        "minWords": 20
+      },
+      {
+        "id": "Q_O2",
+        "texte": "Décrivez votre expérience avec les modèles de Machine Learning. Quels types de problèmes avez-vous résolus ?",
+        "blocsLies": ["B2"],
+        "minWords": 20
+      },
+      {
+        "id": "Q_O3",
+        "texte": "Avez-vous travaillé sur des projets impliquant le traitement du langage naturel ? Si oui, décrivez-les.",
+        "blocsLies": ["B3"],
+        "minWords": 15
+      },
+      {
+        "id": "Q_O4",
+        "texte": "Décrivez votre expérience en matière de pipelines de données et d'infrastructure data.",
+        "blocsLies": ["B4"],
+        "minWords": 15
+      },
+      {
+        "id": "Q_O5",
+        "texte": "Quels sont vos objectifs de carrière dans le domaine de la Data et de l'IA ?",
+        "blocsLies": ["B1", "B2", "B3", "B4", "B5"],
+        "minWords": 15
+      }
+    ],
+    "choixMultiples": [
+      {
+        "id": "Q_M1",
+        "texte": "Quels langages de programmation maîtrisez-vous ?",
+        "options": ["Python", "R", "SQL", "Java", "Scala", "JavaScript", "Julia"],
+        "competencesLiees": ["C04", "C05"],
+        "multiple": true
+      },
+      {
+        "id": "Q_M2",
+        "texte": "Quels frameworks ML/DL avez-vous utilisés ?",
+        "options": ["Scikit-learn", "TensorFlow", "PyTorch", "Keras", "XGBoost", "LightGBM", "Hugging Face"],
+        "competencesLiees": ["C06", "C07", "C08", "C13"],
+        "multiple": true
+      },
+      {
+        "id": "Q_M3",
+        "texte": "Quelles plateformes Cloud avez-vous utilisées ?",
+        "options": ["AWS", "Google Cloud", "Azure", "Databricks", "Snowflake", "Aucune"],
+        "competencesLiees": ["C17", "C18"],
+        "multiple": true
+      },
+      {
+        "id": "Q_M4",
+        "texte": "Quels outils de visualisation utilisez-vous ?",
+        "options": ["Matplotlib", "Seaborn", "Plotly", "Tableau", "Power BI", "Looker", "D3.js"],
+        "competencesLiees": ["C02"],
+        "multiple": true
+      },
+      {
+        "id": "Q_M5",
+        "texte": "Quels outils d'orchestration connaissez-vous ?",
+        "options": ["Apache Airflow", "Prefect", "Luigi", "Dagster", "dbt", "Aucun"],
+        "competencesLiees": ["C19"],
+        "multiple": true
+      }
+    ]
+  }
+}

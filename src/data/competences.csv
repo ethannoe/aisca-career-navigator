@@ -1,0 +1,26 @@
+CompetenceID,CompetenceName,Description,BlocID,BlocName
+C01,Nettoyage de données,Capacité à identifier et corriger les données manquantes aberrantes ou incohérentes,B1,Analyse de Données
+C02,Visualisation de données,Création de graphiques et tableaux de bord pour communiquer des insights,B1,Analyse de Données
+C03,Statistiques descriptives,Calcul et interprétation de mesures statistiques (moyenne médiane écart-type),B1,Analyse de Données
+C04,Programmation Python,Maîtrise de Python pour l'analyse de données (Pandas NumPy),B1,Analyse de Données
+C05,SQL et bases de données,Requêtes SQL et manipulation de bases de données relationnelles,B1,Analyse de Données
+C06,Classification,Algorithmes de classification supervisée (SVM Random Forest etc.),B2,Machine Learning
+C07,Régression,Modèles de régression pour la prédiction de valeurs continues,B2,Machine Learning
+C08,Réseaux de neurones,Conception et entraînement de réseaux neuronaux profonds,B2,Machine Learning
+C09,Évaluation de modèles,Métriques et techniques de validation (cross-validation ROC F1-score),B2,Machine Learning
+C10,Feature Engineering,Création et sélection de variables prédictives pertinentes,B2,Machine Learning
+C11,Tokenization,Segmentation du texte en unités significatives (mots sous-mots),B3,NLP - Traitement du Langage
+C12,Word Embeddings,Représentations vectorielles de mots (Word2Vec GloVe FastText),B3,NLP - Traitement du Langage
+C13,Transformers,Modèles de type BERT GPT pour le traitement du langage,B3,NLP - Traitement du Langage
+C14,Analyse sémantique,Extraction du sens et des relations dans les textes,B3,NLP - Traitement du Langage
+C15,Sentiment Analysis,Classification des opinions et émotions dans les textes,B3,NLP - Traitement du Langage
+C16,ETL/ELT,Pipelines d'extraction transformation et chargement de données,B4,Data Engineering
+C17,Big Data,Technologies distribuées (Spark Hadoop) pour le traitement massif,B4,Data Engineering
+C18,Cloud Computing,Services cloud (AWS GCP Azure) pour le stockage et le calcul,B4,Data Engineering
+C19,Orchestration,Outils d'orchestration de workflows (Airflow Prefect),B4,Data Engineering
+C20,Data Quality,Monitoring et assurance qualité des données,B4,Data Engineering
+C21,Prompt Engineering,Conception de prompts efficaces pour les LLMs,B5,IA Générative
+C22,RAG,Retrieval-Augmented Generation pour l'IA contextualisée,B5,IA Générative
+C23,Fine-tuning,Adaptation de modèles pré-entraînés à des tâches spécifiques,B5,IA Générative
+C24,API LLM,Intégration d'APIs de modèles de langage (OpenAI Gemini),B5,IA Générative
+C25,Agents IA,Conception de systèmes IA autonomes et multi-agents,B5,IA Générative

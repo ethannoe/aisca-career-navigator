@@ -1,12 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Header } from "@/components/aisca/Header";
+import { Questionnaire } from "@/components/aisca/Questionnaire";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main>
+        <Questionnaire />
+      </main>
+      
+      {/* Footer */}
+      <footer className="border-t bg-secondary/30 py-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>
+            AISCA - Agent Intelligent Sémantique et Génératif pour la Cartographie des Compétences
+          </p>
+          <p className="mt-1">
+            Projet IA Générative • EFREI Data Engineering & AI 2025-26
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
