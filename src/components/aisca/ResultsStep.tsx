@@ -42,19 +42,33 @@ interface ResultsStepProps {
   isGeneratingBio: boolean;
 }
 
-const CHART_COLORS = [
-  "hsl(185, 70%, 35%)",
-  "hsl(200, 80%, 50%)",
-  "hsl(160, 60%, 45%)",
-  "hsl(220, 70%, 55%)",
-  "hsl(280, 60%, 55%)",
+// Distinct colors for each domain - more vivid and distinguishable
+const CHART_COLORS = {
+  "B1": "#22c55e", // Green - Analyse de Données
+  "B2": "#3b82f6", // Blue - Machine Learning
+  "B3": "#a855f7", // Purple - NLP
+  "B4": "#f97316", // Orange - Data Engineering
+  "B5": "#ec4899", // Pink - IA Générative
+};
+
+const CHART_COLORS_ARRAY = [
+  "#22c55e", "#3b82f6", "#a855f7", "#f97316", "#ec4899"
 ];
 
 const COMPATIBILITY_COLORS = {
-  excellente: "bg-success/10 text-success border-success/30",
-  bonne: "bg-chart-2/10 text-chart-2 border-chart-2/30",
-  moyenne: "bg-warning/10 text-warning border-warning/30",
-  faible: "bg-destructive/10 text-destructive border-destructive/30",
+  excellente: "bg-green-500/10 text-green-600 border-green-500/30",
+  bonne: "bg-blue-500/10 text-blue-600 border-blue-500/30",
+  moyenne: "bg-amber-500/10 text-amber-600 border-amber-500/30",
+  faible: "bg-red-500/10 text-red-600 border-red-500/30",
+};
+
+// Profile mapping for display
+const BLOC_PROFILES: { [key: string]: string } = {
+  "B1": "Data Analyst / BI",
+  "B2": "Data Scientist / ML",
+  "B3": "NLP / Linguistique",
+  "B4": "Data Engineer",
+  "B5": "IA Générative",
 };
 
 export function ResultsStep({
@@ -67,6 +81,11 @@ export function ResultsStep({
 }: ResultsStepProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Sort blocs by score to find dominant profile
+  const sortedBlocs = [...result.blocsScores].sort((a, b) => b.score - a.score);
+  const dominantBloc = sortedBlocs[0];
+  const dominantProfile = BLOC_PROFILES[dominantBloc?.blocId] || "Non défini";
+
   // Prepare radar chart data
   const radarData = result.blocsScores.map((bs) => ({
     bloc: bs.blocNom.split(" ")[0],
@@ -75,21 +94,24 @@ export function ResultsStep({
     fullMark: 100,
   }));
 
-  // Prepare bar chart data
-  const barData = result.blocsScores.map((bs, index) => ({
-    name: bs.blocNom.split(" ")[0],
-    fullName: bs.blocNom,
-    score: Math.round(bs.score * 100),
-    color: CHART_COLORS[index % CHART_COLORS.length],
-  }));
+  // Prepare bar chart data - sorted by score for clarity
+  const barData = [...result.blocsScores]
+    .sort((a, b) => b.score - a.score)
+    .map((bs) => ({
+      name: bs.blocNom.length > 15 ? bs.blocNom.substring(0, 15) + "..." : bs.blocNom,
+      fullName: bs.blocNom,
+      score: Math.round(bs.score * 100),
+      color: CHART_COLORS[bs.blocId as keyof typeof CHART_COLORS] || "#64748b",
+      blocId: bs.blocId,
+    }));
 
   const top3Jobs = result.recommandations.slice(0, 3);
 
   return (
     <div className="animate-fade-in">
-      {/* Header with global score */}
+      {/* Header with dominant profile */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-success/10 text-success text-sm font-medium mb-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-600 text-sm font-medium mb-4">
           <Trophy className="w-4 h-4" />
           <span>Analyse terminée</span>
         </div>
@@ -98,10 +120,19 @@ export function ResultsStep({
           Votre profil Data & IA
         </h2>
 
+        {/* Dominant profile indicator */}
+        <div className="mt-4 mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+          <p className="text-sm text-muted-foreground mb-1">Profil dominant détecté</p>
+          <p className="text-2xl font-bold text-primary">{dominantProfile}</p>
+          <p className="text-lg font-semibold mt-1">
+            Score: {Math.round(dominantBloc?.score * 100)}%
+          </p>
+        </div>
+
         {/* Global score circle */}
-        <div className="inline-flex items-center justify-center w-32 h-32 rounded-full bg-primary/10 border-4 border-primary/20 mt-4">
+        <div className="inline-flex items-center justify-center w-28 h-28 rounded-full bg-primary/10 border-4 border-primary/20">
           <div className="text-center">
-            <span className="text-4xl font-bold text-primary">
+            <span className="text-3xl font-bold text-primary">
               {Math.round(result.scoreGlobal * 100)}
             </span>
             <span className="text-lg text-primary">%</span>
@@ -120,6 +151,59 @@ export function ResultsStep({
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
+          {/* Profile scores - NEW primary visualization */}
+          <Card className="p-6">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              Scores par profil métier
+            </h3>
+            <div className="space-y-4">
+              {sortedBlocs.map((bs, index) => {
+                const profile = BLOC_PROFILES[bs.blocId];
+                const color = CHART_COLORS[bs.blocId as keyof typeof CHART_COLORS];
+                const isDominant = index === 0;
+                return (
+                  <div key={bs.blocId} className={cn(
+                    "p-3 rounded-lg border",
+                    isDominant ? "bg-primary/5 border-primary/30" : "bg-secondary/30 border-border/50"
+                  )}>
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className={cn("font-medium", isDominant && "text-primary")}>
+                          {profile}
+                        </span>
+                        {isDominant && (
+                          <Badge className="bg-primary/20 text-primary text-xs">
+                            DOMINANT
+                          </Badge>
+                        )}
+                      </div>
+                      <span className={cn(
+                        "font-bold text-lg",
+                        isDominant ? "text-primary" : "text-foreground"
+                      )}>
+                        {Math.round(bs.score * 100)}%
+                      </span>
+                    </div>
+                    <div className="h-3 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${bs.score * 100}%`,
+                          backgroundColor: color
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
           <div className="grid md:grid-cols-2 gap-6">
             {/* Radar Chart */}
             <Card className="p-6">
@@ -127,24 +211,25 @@ export function ResultsStep({
                 <Target className="w-5 h-5 text-primary" />
                 Radar des compétences
               </h3>
-              <div className="h-[300px]">
+              <div className="h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData}>
                     <PolarGrid stroke="hsl(var(--border))" />
                     <PolarAngleAxis
                       dataKey="bloc"
-                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                     />
                     <PolarRadiusAxis
                       angle={30}
                       domain={[0, 100]}
-                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                      tickCount={5}
+                      tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }}
                     />
                     <Radar
                       name="Score"
                       dataKey="score"
-                      stroke="hsl(var(--primary))"
-                      fill="hsl(var(--primary))"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
                       fillOpacity={0.3}
                       strokeWidth={2}
                     />
@@ -153,31 +238,42 @@ export function ResultsStep({
               </div>
             </Card>
 
-            {/* Bar Chart */}
+            {/* Bar Chart - Horizontal, sorted */}
             <Card className="p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-primary" />
-                Scores par domaine
+                Classement des domaines
               </h3>
-              <div className="h-[300px]">
+              <div className="h-[280px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData} layout="vertical">
-                    <XAxis type="number" domain={[0, 100]} />
-                    <YAxis dataKey="name" type="category" width={80} />
+                  <BarChart data={barData} layout="vertical" margin={{ left: 10 }}>
+                    <XAxis 
+                      type="number" 
+                      domain={[0, 100]} 
+                      tickFormatter={(v) => `${v}%`}
+                    />
+                    <YAxis 
+                      dataKey="name" 
+                      type="category" 
+                      width={100}
+                      tick={{ fontSize: 11 }}
+                    />
                     <Tooltip
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className="bg-card border rounded-lg p-2 shadow-lg">
-                              <p className="font-medium">{payload[0].payload.fullName}</p>
-                              <p className="text-primary">{payload[0].value}%</p>
+                            <div className="bg-card border rounded-lg p-3 shadow-lg">
+                              <p className="font-semibold">{payload[0].payload.fullName}</p>
+                              <p className="text-lg font-bold" style={{ color: payload[0].payload.color }}>
+                                {payload[0].value}%
+                              </p>
                             </div>
                           );
                         }
                         return null;
                       }}
                     />
-                    <Bar dataKey="score" radius={[0, 4, 4, 0]}>
+                    <Bar dataKey="score" radius={[0, 6, 6, 0]}>
                       {barData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -188,20 +284,35 @@ export function ResultsStep({
             </Card>
           </div>
 
-          {/* Top 3 recommendations preview */}
+          {/* Top 3 recommendations - COHERENT with dominant profile */}
           <Card className="p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <h3 className="font-semibold mb-2 flex items-center gap-2">
               <Award className="w-5 h-5 text-primary" />
               Top 3 métiers recommandés
             </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Basés sur votre profil dominant: <span className="font-semibold text-primary">{dominantProfile}</span>
+            </p>
             <div className="grid md:grid-cols-3 gap-4">
               {top3Jobs.map((rec, index) => (
                 <div
                   key={rec.metier.id}
-                  className="p-4 rounded-xl bg-secondary/50 border border-border/50"
+                  className={cn(
+                    "p-4 rounded-xl border",
+                    index === 0 
+                      ? "bg-primary/5 border-primary/30" 
+                      : "bg-secondary/50 border-border/50"
+                  )}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-sm font-bold flex items-center justify-center">
+                    <span className={cn(
+                      "w-7 h-7 rounded-full text-sm font-bold flex items-center justify-center",
+                      index === 0 
+                        ? "bg-yellow-500/20 text-yellow-600"
+                        : index === 1
+                        ? "bg-gray-400/20 text-gray-600"
+                        : "bg-orange-500/20 text-orange-600"
+                    )}>
                       {index + 1}
                     </span>
                     <Badge
@@ -296,12 +407,12 @@ export function ResultsStep({
                       {Math.round(bs.score * 100)}%
                     </span>
                   </div>
-                  <div className="skill-bar">
+                  <div className="h-2.5 bg-secondary rounded-full overflow-hidden">
                     <div
-                      className="skill-bar-fill"
+                      className="h-full rounded-full transition-all"
                       style={{ 
                         width: `${bs.score * 100}%`,
-                        backgroundColor: CHART_COLORS[index % CHART_COLORS.length]
+                        backgroundColor: CHART_COLORS[bs.blocId as keyof typeof CHART_COLORS] || CHART_COLORS_ARRAY[index % CHART_COLORS_ARRAY.length]
                       }}
                     />
                   </div>
