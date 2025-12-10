@@ -1,5 +1,5 @@
-// Scoring engine for AISCA - Optimized for beginner-friendly evaluation
-// This module implements semantic similarity scoring with enhanced tolerance
+// Scoring engine for AISCA - Realistic evaluation for students
+// Balanced scoring: generous for beginners but realistic job matching
 
 import type {
   Referentiel,
@@ -9,145 +9,171 @@ import type {
   AnalysisResult,
 } from "@/types/aisca";
 
-// Enhanced competency keywords with beginner-friendly terms and synonyms
+// Job family definitions - used to filter unrealistic recommendations
+const JOB_FAMILIES: { [key: string]: string[] } = {
+  "data_analysis": ["J01", "J07"], // Data Analyst, BI Analyst
+  "data_science": ["J02"], // Data Scientist
+  "ml_engineering": ["J03", "J08"], // ML Engineer, MLOps
+  "nlp": ["J04"], // NLP Engineer
+  "data_engineering": ["J05"], // Data Engineer
+  "ai_engineering": ["J06"], // AI Engineer
+};
+
+// Define which job families are compatible (can be suggested together)
+const COMPATIBLE_FAMILIES: { [key: string]: string[] } = {
+  "data_analysis": ["data_analysis"], // Data Analyst stays in analysis family
+  "data_science": ["data_analysis", "data_science"], 
+  "ml_engineering": ["ml_engineering"],
+  "nlp": ["nlp"],
+  "data_engineering": ["data_engineering"],
+  "ai_engineering": ["ai_engineering", "nlp"],
+};
+
+// Job level requirements (minimum score to realistically qualify)
+const JOB_LEVEL_REQUIREMENTS: { [key: string]: { minScore: number; isJuniorFriendly: boolean } } = {
+  "J01": { minScore: 0.25, isJuniorFriendly: true }, // Data Analyst - Junior OK
+  "J02": { minScore: 0.50, isJuniorFriendly: false }, // Data Scientist - needs experience
+  "J03": { minScore: 0.60, isJuniorFriendly: false }, // ML Engineer - Senior role
+  "J04": { minScore: 0.50, isJuniorFriendly: false }, // NLP Engineer - specialized
+  "J05": { minScore: 0.50, isJuniorFriendly: false }, // Data Engineer - needs infra exp
+  "J06": { minScore: 0.60, isJuniorFriendly: false }, // AI Engineer - Senior role
+  "J07": { minScore: 0.20, isJuniorFriendly: true }, // BI Analyst - Junior OK
+  "J08": { minScore: 0.60, isJuniorFriendly: false }, // MLOps - Senior role
+};
+
+// Competency keywords - focused on beginner terms
 const COMPETENCY_KEYWORDS: { [key: string]: string[] } = {
-  // B1 - Analyse de Données (enriched with beginner terms)
+  // B1 - Analyse de Données
   C01: [
-    "nettoyage", "nettoyer", "cleaning", "clean", "données manquantes", "manquantes", "missing",
-    "outliers", "valeurs aberrantes", "preprocessing", "prétraitement", "data quality", "qualité",
-    "pandas", "dataframe", "excel", "csv", "supprimer", "corriger", "filtrer", "null", "nan",
-    "doublons", "duplicates", "erreurs", "incohérences", "vérifier", "valider", "traitement"
+    "nettoyage", "nettoyer", "données manquantes", "manquantes", "missing",
+    "outliers", "preprocessing", "prétraitement", "qualité",
+    "pandas", "dataframe", "excel", "csv", "filtrer", "null", "nan",
+    "doublons", "erreurs", "vérifier", "valider", "traitement"
   ],
   C02: [
-    "visualisation", "visualiser", "graphique", "graph", "dashboard", "tableau de bord", "tableau",
-    "matplotlib", "seaborn", "plotly", "chart", "report", "rapport", "courbe", "histogramme",
-    "bar", "camembert", "pie", "scatter", "nuage", "powerbi", "power bi", "excel", "présenter",
-    "afficher", "montrer", "diagramme", "représentation", "visuel", "image", "kpi", "indicateur"
+    "visualisation", "graphique", "graph", "dashboard", "tableau de bord",
+    "matplotlib", "seaborn", "plotly", "chart", "rapport", "courbe", "histogramme",
+    "bar", "camembert", "scatter", "powerbi", "power bi", "excel",
+    "diagramme", "représentation", "kpi", "indicateur"
   ],
   C03: [
-    "statistiques", "statistique", "stats", "moyenne", "mean", "médiane", "median", "écart-type",
-    "std", "distribution", "test", "corrélation", "correlation", "analyse", "analyser", "calcul",
-    "calculer", "variance", "probabilité", "normale", "pourcentage", "ratio", "proportion",
-    "tendance", "trend", "comparaison", "comparer", "mesure", "chiffres", "données"
+    "statistiques", "statistique", "moyenne", "mean", "médiane",
+    "écart-type", "distribution", "corrélation", "analyse",
+    "variance", "probabilité", "pourcentage", "ratio",
+    "tendance", "comparaison", "mesure", "chiffres"
   ],
   C04: [
-    "python", "programmation", "programmer", "code", "coder", "script", "fonction", "fonctions",
-    "classe", "pandas", "numpy", "jupyter", "notebook", "librairie", "library", "bibliothèque",
-    "import", "variable", "boucle", "loop", "condition", "if", "développer", "développement",
-    "automatiser", "automatisation", "programme", "logiciel", "anaconda", "pip", "vscode"
+    "python", "programmation", "code", "coder", "script", "fonction",
+    "pandas", "numpy", "jupyter", "notebook", "librairie",
+    "import", "variable", "boucle", "condition", "développer",
+    "automatiser", "programme", "anaconda", "pip"
   ],
   C05: [
-    "sql", "base de données", "database", "bdd", "requête", "query", "join", "jointure", "select",
-    "postgresql", "mysql", "sqlite", "table", "tables", "colonne", "ligne", "row", "where",
-    "group by", "order", "insert", "update", "delete", "relationnel", "données structurées",
-    "extraire", "extraction", "récupérer", "interroger", "stocker", "stockage"
+    "sql", "base de données", "database", "bdd", "requête", "query", "join",
+    "postgresql", "mysql", "sqlite", "table", "select", "where",
+    "group by", "insert", "données structurées", "extraire", "stocker"
   ],
   
-  // B2 - Machine Learning (enriched)
+  // B2 - Machine Learning
   C06: [
-    "classification", "classifier", "classer", "prédiction classe", "catégorie", "catégoriser",
-    "random forest", "forêt aléatoire", "svm", "logistic", "logistique", "decision tree",
-    "arbre", "knn", "naïve bayes", "classe", "étiquette", "label", "supervisé", "prédire",
-    "prédiction", "modèle", "entraîner", "apprentissage", "spam", "fraude", "détection"
+    "classification", "classifier", "prédiction classe", "catégorie",
+    "random forest", "svm", "logistic", "decision tree", "arbre",
+    "knn", "naïve bayes", "supervisé", "prédire", "modèle", "entraîner"
   ],
   C07: [
-    "régression", "prédiction", "prédire", "valeur continue", "linear", "linéaire", "gradient",
-    "loss", "erreur", "price", "prix", "forecast", "prévision", "estimation", "estimer",
-    "numérique", "quantité", "modèle prédictif", "variable cible", "target", "tendance"
+    "régression", "prédiction", "prédire", "valeur continue", "linéaire",
+    "loss", "erreur", "prix", "prévision", "estimation",
+    "modèle prédictif", "variable cible", "target"
   ],
   C08: [
-    "réseaux neurones", "neural", "neurone", "deep learning", "apprentissage profond", "cnn",
-    "rnn", "transformer", "layers", "couches", "tensorflow", "pytorch", "keras", "perceptron",
-    "activation", "poids", "weights", "backpropagation", "epoch", "batch", "ia", "intelligence"
+    "réseaux neurones", "neural", "deep learning", "cnn", "rnn",
+    "transformer", "tensorflow", "pytorch", "keras", "perceptron",
+    "couches", "epoch", "batch"
   ],
   C09: [
-    "évaluation", "évaluer", "métriques", "métrique", "accuracy", "précision", "precision",
-    "recall", "rappel", "f1", "score", "roc", "auc", "cross-validation", "validation",
-    "test", "train", "performance", "mesurer", "qualité", "erreur", "confusion", "matrice"
+    "évaluation", "métriques", "accuracy", "précision", "precision",
+    "recall", "f1", "score", "roc", "auc", "cross-validation",
+    "validation", "test", "train", "performance", "confusion"
   ],
   C10: [
-    "feature", "variable", "engineering", "sélection", "sélectionner", "extraction", "extraire",
-    "transformation", "transformer", "créer", "nouvelle", "colonne", "attribut", "caractéristique",
-    "normalisation", "standardisation", "encoding", "encodage", "one-hot"
+    "feature", "variable", "sélection", "extraction", "transformation",
+    "normalisation", "standardisation", "encoding", "one-hot"
   ],
   
-  // B3 - NLP (enriched with simpler terms)
+  // B3 - NLP
   C11: [
-    "tokenization", "tokenizer", "token", "segmentation", "segmenter", "mot", "mots", "sous-mot",
-    "nlp", "texte", "découper", "séparer", "phrase", "caractère", "unité", "linguistique"
+    "tokenization", "token", "segmentation", "mot", "sous-mot",
+    "nlp", "texte", "découper", "phrase"
   ],
   C12: [
-    "embedding", "embeddings", "word2vec", "glove", "fasttext", "représentation vectorielle",
-    "vecteur", "vecteurs", "espace vectoriel", "dimension", "sémantique", "similarité"
+    "embedding", "word2vec", "glove", "représentation vectorielle",
+    "vecteur", "dimension", "sémantique", "similarité"
   ],
   C13: [
-    "transformer", "transformers", "bert", "gpt", "chatgpt", "attention", "huggingface",
-    "hugging face", "llm", "language model", "modèle langage", "pré-entraîné", "pretrained",
-    "nlp", "traitement langage", "texte", "génération", "compréhension"
+    "transformer", "bert", "gpt", "chatgpt", "attention", "huggingface",
+    "llm", "modèle langage", "pré-entraîné", "génération"
   ],
   C14: [
-    "sémantique", "sens", "signification", "compréhension", "comprendre", "relation", "contexte",
-    "meaning", "interprétation", "interpréter", "analyser", "analyse textuelle", "extraction"
+    "sémantique", "sens", "signification", "compréhension",
+    "contexte", "interprétation", "analyse textuelle"
   ],
   C15: [
-    "sentiment", "sentiments", "opinion", "opinions", "émotion", "émotions", "positif", "négatif",
-    "neutre", "analyse opinion", "avis", "commentaire", "commentaires", "review", "polarité"
+    "sentiment", "opinion", "émotion", "positif", "négatif",
+    "neutre", "avis", "commentaire", "polarité"
   ],
   
-  // B4 - Data Engineering (enriched)
+  // B4 - Data Engineering
   C16: [
-    "etl", "elt", "pipeline", "pipelines", "extraction", "extraire", "transformation", "transformer",
-    "chargement", "charger", "workflow", "flux", "données", "automatisation", "process", "traitement"
+    "etl", "pipeline", "extraction", "transformation",
+    "chargement", "workflow", "flux", "automatisation"
   ],
   C17: [
-    "big data", "spark", "hadoop", "distributed", "distribué", "cluster", "scale", "scalable",
-    "parallèle", "volume", "massif", "masse", "millions", "milliards", "terabyte", "données massives"
+    "big data", "spark", "hadoop", "distribué", "cluster",
+    "scalable", "volume", "massif", "données massives"
   ],
   C18: [
-    "cloud", "aws", "amazon", "gcp", "google cloud", "azure", "microsoft", "s3", "ec2", "lambda",
-    "serverless", "serveur", "hébergement", "déploiement", "stockage cloud", "service cloud"
+    "cloud", "aws", "gcp", "azure", "s3", "ec2", "lambda",
+    "serverless", "hébergement", "déploiement"
   ],
   C19: [
-    "orchestration", "orchestrer", "airflow", "prefect", "dag", "schedule", "planification",
-    "planifier", "workflow", "automatisation", "cron", "tâche", "dépendance", "séquence"
+    "orchestration", "airflow", "prefect", "dag", "planification",
+    "workflow", "cron", "tâche", "séquence"
   ],
   C20: [
-    "qualité données", "data quality", "monitoring", "surveiller", "surveillance", "validation",
-    "valider", "test data", "contrôle", "vérification", "vérifier", "intégrité", "cohérence"
+    "qualité données", "data quality", "monitoring", "surveillance",
+    "validation", "contrôle", "vérification", "intégrité"
   ],
   
-  // B5 - IA Générative (enriched with common terms)
+  // B5 - IA Générative
   C21: [
-    "prompt", "prompts", "instruction", "instructions", "few-shot", "chain of thought", "cot",
-    "prompt engineering", "question", "demande", "requête", "formuler", "rédiger", "optimiser"
+    "prompt", "instruction", "few-shot", "prompt engineering",
+    "question", "formuler", "optimiser"
   ],
   C22: [
-    "rag", "retrieval", "augmented", "generation", "contexte", "documents", "document",
-    "recherche", "récupération", "base connaissance", "knowledge", "enrichir", "augmenter"
+    "rag", "retrieval", "augmented", "generation", "contexte",
+    "documents", "recherche", "base connaissance"
   ],
   C23: [
-    "fine-tuning", "fine tuning", "finetuning", "adaptation", "adapter", "transfer learning",
-    "transfert", "lora", "qlora", "personnaliser", "spécialiser", "ajuster", "réentraîner"
+    "fine-tuning", "adaptation", "transfer learning",
+    "lora", "personnaliser", "spécialiser"
   ],
   C24: [
-    "api", "apis", "openai", "gemini", "claude", "anthropic", "integration", "intégrer",
-    "llm api", "appel api", "connexion", "utiliser", "service", "clé api", "requête"
+    "api", "openai", "gemini", "claude", "integration",
+    "llm api", "appel api", "clé api"
   ],
   C25: [
-    "agent", "agents", "autonomous", "autonome", "multi-agent", "tool use", "outil", "outils",
-    "planning", "planification", "reasoning", "raisonnement", "chatbot", "assistant", "automatique"
+    "agent", "autonomous", "autonome", "multi-agent",
+    "tool use", "planning", "chatbot", "assistant"
   ],
 };
 
-// Additional generic positive keywords that boost scores
+// Generic positive keywords (moderate bonus)
 const GENERIC_POSITIVE_KEYWORDS = [
-  "projet", "expérience", "travaillé", "utilisé", "appris", "développé", "créé", "analysé",
-  "implémenté", "construit", "réalisé", "mis en place", "formation", "cours", "pratique",
-  "équipe", "collaboration", "résultat", "objectif", "solution", "problème", "résolu",
-  "amélioration", "optimisation", "données", "data", "analyse", "model", "modèle"
+  "projet", "expérience", "travaillé", "utilisé", "appris", "développé", "créé",
+  "formation", "cours", "pratique", "équipe", "données", "data", "analyse"
 ];
 
-// Calculate text similarity score with enhanced tolerance for beginners
+// Calculate text similarity - balanced for beginners
 function calculateTextSimilarity(text: string, keywords: string[]): number {
   if (!text || text.trim().length === 0) return 0;
   
@@ -156,45 +182,82 @@ function calculateTextSimilarity(text: string, keywords: string[]): number {
   
   let matchCount = 0;
   let partialMatchCount = 0;
-  let totalWeight = 0;
   
-  // Check for keyword matches
-  keywords.forEach((keyword, index) => {
+  keywords.forEach((keyword) => {
     const normalizedKeyword = keyword.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const weight = 1 / (index * 0.2 + 1); // More gradual weight decay
-    totalWeight += weight;
     
-    // Exact match
     if (normalizedText.includes(normalizedKeyword)) {
-      matchCount += weight;
-    } 
-    // Partial match (keyword starts with word or word starts with keyword)
-    else if (words.some(word => 
+      matchCount++;
+    } else if (words.some(word => 
       (word.length >= 4 && normalizedKeyword.startsWith(word)) || 
       (normalizedKeyword.length >= 4 && word.startsWith(normalizedKeyword))
     )) {
-      partialMatchCount += weight * 0.6;
+      partialMatchCount += 0.5;
     }
   });
   
-  // Check for generic positive keywords (bonus)
-  const genericBonus = GENERIC_POSITIVE_KEYWORDS.filter(kw => 
+  // Generic bonus (limited to 10%)
+  const genericBonus = Math.min(GENERIC_POSITIVE_KEYWORDS.filter(kw => 
     normalizedText.includes(kw.toLowerCase())
-  ).length * 0.03;
+  ).length * 0.02, 0.10);
   
-  // Base score for having content (minimum effort recognition)
-  const contentLengthBonus = Math.min(words.length / 50, 0.25); // Up to 25% bonus for detailed answers
+  // Content length bonus (limited to 15%)
+  const contentLengthBonus = Math.min(words.length / 80, 0.15);
   
-  // Calculate raw similarity
-  const rawSimilarity = totalWeight > 0 
-    ? (matchCount + partialMatchCount) / (totalWeight * 0.35) // More permissive divisor
+  // Calculate similarity (balanced)
+  const rawSimilarity = keywords.length > 0 
+    ? (matchCount + partialMatchCount) / (keywords.length * 0.6)
     : 0;
   
-  // Apply bonuses and cap at 1.0
   return Math.min(rawSimilarity + genericBonus + contentLengthBonus, 1);
 }
 
-// Calculate competence score from all user inputs - OPTIMIZED FOR BEGINNERS
+// Get user's primary job family based on responses
+function detectUserJobFamily(responses: UserResponses): string | null {
+  const allText = Object.values(responses.ouvertes).join(" ").toLowerCase();
+  
+  const jobMentions: { [key: string]: number } = {
+    "data_analysis": 0,
+    "data_science": 0,
+    "ml_engineering": 0,
+    "nlp": 0,
+    "data_engineering": 0,
+    "ai_engineering": 0,
+  };
+  
+  // Keywords for each family - detect user's stated interest
+  if (allText.match(/data analyst|analyste|bi analyst|business intelligence|tableau de bord|reporting|tableau|dashboard|excel|visualis/)) {
+    jobMentions["data_analysis"] += 3;
+  }
+  if (allText.match(/data scientist|science des données|modèle prédictif|machine learning|prédiction|statistique/)) {
+    jobMentions["data_science"] += 3;
+  }
+  if (allText.match(/ml engineer|mlops|déploiement.*modèle|production|industrialisation/)) {
+    jobMentions["ml_engineering"] += 3;
+  }
+  if (allText.match(/nlp|traitement.*langage|text mining|chatbot|linguistique/)) {
+    jobMentions["nlp"] += 3;
+  }
+  if (allText.match(/data engineer|pipeline|etl|infrastructure|ingénieur données|spark|hadoop/)) {
+    jobMentions["data_engineering"] += 3;
+  }
+  if (allText.match(/ai engineer|ia générative|llm|gpt|agents|prompt/)) {
+    jobMentions["ai_engineering"] += 3;
+  }
+  
+  const maxFamily = Object.entries(jobMentions).reduce((a, b) => b[1] > a[1] ? b : a);
+  return maxFamily[1] > 0 ? maxFamily[0] : null;
+}
+
+// Get job family from job ID
+function getJobFamily(jobId: string): string | null {
+  for (const [family, jobs] of Object.entries(JOB_FAMILIES)) {
+    if (jobs.includes(jobId)) return family;
+  }
+  return null;
+}
+
+// Calculate competence score - realistic for students
 function calculateCompetenceScore(
   competenceId: string,
   responses: UserResponses,
@@ -204,65 +267,67 @@ function calculateCompetenceScore(
   let totalScore = 0;
   let weightSum = 0;
   
-  // Base score for any participation (recognizes effort)
+  // Small participation bonus (8%)
   const hasAnyResponse = Object.keys(responses.likert).length > 0 || 
                          Object.values(responses.ouvertes).some(r => r && r.length > 10) ||
                          Object.keys(responses.choixMultiples).length > 0;
   
-  const participationBonus = hasAnyResponse ? 0.15 : 0; // 15% base for participating
+  const participationBonus = hasAnyResponse ? 0.08 : 0;
 
-  // Score from Likert questions (increased contribution)
+  // Likert questions (30% weight) - realistic scoring
   referentiel.questions.likert.forEach((q) => {
     if (q.competencesLiees.includes(competenceId)) {
       const response = responses.likert[q.id];
       if (response !== undefined) {
-        // More generous Likert scoring: 1=20%, 2=40%, 3=60%, 4=80%, 5=100%
-        const likertScore = response / 5;
-        totalScore += likertScore * 0.35; // Likert now contributes 35%
-        weightSum += 0.35;
+        // Realistic Likert: 1=10%, 2=25%, 3=45%, 4=65%, 5=80% (capped for students)
+        const likertScoreMap: { [key: number]: number } = {
+          1: 0.10, 2: 0.25, 3: 0.45, 4: 0.65, 5: 0.80
+        };
+        const likertScore = likertScoreMap[response] || (response / 5);
+        totalScore += likertScore * 0.30;
+        weightSum += 0.30;
       }
     }
   });
 
-  // Score from open questions (semantic matching with enhanced tolerance)
-  const allOpenTexts: string[] = [];
+  // Open questions (50% weight) - semantic matching
+  const relevantTexts: string[] = [];
   referentiel.questions.ouvertes.forEach((q) => {
     const response = responses.ouvertes[q.id];
     if (response && response.length > 0) {
-      allOpenTexts.push(response);
+      relevantTexts.push(response);
     }
   });
   
-  if (allOpenTexts.length > 0) {
-    // Combine all open responses for broader matching
-    const combinedText = allOpenTexts.join(" ");
+  if (relevantTexts.length > 0) {
+    const combinedText = relevantTexts.join(" ");
     const similarity = calculateTextSimilarity(combinedText, keywords);
     
-    // Apply enhanced scoring with minimum recognition
-    const openScore = Math.max(similarity, allOpenTexts.length > 0 ? 0.2 : 0); // Minimum 20% if any text provided
-    totalScore += openScore * 0.45; // Open questions contribute 45%
-    weightSum += 0.45;
+    // Minimum 10% if any text provided
+    const openScore = Math.max(similarity, relevantTexts.length > 0 ? 0.10 : 0);
+    totalScore += openScore * 0.50;
+    weightSum += 0.50;
   }
 
-  // Score from multiple choice questions (more generous)
+  // Multiple choice questions (20% weight)
   referentiel.questions.choixMultiples.forEach((q) => {
     if (q.competencesLiees.includes(competenceId)) {
       const selected = responses.choixMultiples[q.id] || [];
       if (selected.length > 0) {
-        // Even one selection shows awareness - give partial credit
-        const relevanceScore = Math.min((selected.length + 1) / 3, 1); // +1 bonus, easier to score high
-        totalScore += relevanceScore * 0.2; // Multiple choice contributes 20%
-        weightSum += 0.2;
+        // Realistic: need actual relevant selections
+        const relevanceScore = Math.min(selected.length / 4, 1);
+        totalScore += relevanceScore * 0.20;
+        weightSum += 0.20;
       }
     }
   });
 
-  // Calculate final score with participation bonus
+  // Final score with participation bonus (capped at 0.80 for students)
   const baseScore = weightSum > 0 ? totalScore / weightSum : 0;
-  return Math.min(baseScore + participationBonus, 1);
+  return Math.min(baseScore + participationBonus, 0.80);
 }
 
-// Calculate bloc scores
+// Calculate bloc scores - no artificial boost
 function calculateBlocScores(
   responses: UserResponses,
   referentiel: Referentiel
@@ -283,22 +348,20 @@ function calculateBlocScores(
       ? scores.reduce((a, b) => a + b, 0) / scores.length 
       : 0;
 
-    // Apply bloc-level boost for beginners (recognize learning intent)
-    const boostedScore = Math.min(avgScore * 1.15, 1); // 15% boost capped at 100%
-
     return {
       blocId: bloc.id,
       blocNom: bloc.nom,
-      score: boostedScore,
+      score: avgScore, // No artificial boost
       competenceScores,
     };
   });
 }
 
-// Calculate job recommendations - OPTIMIZED THRESHOLDS
+// Calculate job recommendations - REALISTIC with family filtering
 function calculateRecommandations(
   blocsScores: BlocScore[],
-  referentiel: Referentiel
+  referentiel: Referentiel,
+  responses: UserResponses
 ): MetierRecommandation[] {
   const blocScoreMap: { [key: string]: number } = {};
   blocsScores.forEach((bs) => {
@@ -312,6 +375,16 @@ function calculateRecommandations(
     });
   });
 
+  // Detect user's stated job preference
+  const userFamily = detectUserJobFamily(responses);
+  const compatibleFamilies = userFamily ? COMPATIBLE_FAMILIES[userFamily] : null;
+
+  // Calculate global skill level
+  const allScores = Object.values(competenceScoreMap);
+  const avgSkillScore = allScores.length > 0 
+    ? allScores.reduce((a, b) => a + b, 0) / allScores.length 
+    : 0;
+
   return referentiel.metiers
     .map((metier) => {
       const requiredCompetences = metier.competencesRequises;
@@ -321,8 +394,7 @@ function calculateRecommandations(
       requiredCompetences.forEach((compId) => {
         const score = competenceScoreMap[compId] || 0;
         totalScore += score;
-        // Lower threshold for "missing" competence (was 0.4, now 0.25)
-        if (score < 0.25) {
+        if (score < 0.30) {
           const comp = referentiel.blocs
             .flatMap((b) => b.competences)
             .find((c) => c.id === compId);
@@ -336,27 +408,43 @@ function calculateRecommandations(
         ? totalScore / requiredCompetences.length
         : 0;
 
-      // Calculate bloc-based score with boost
+      // Bloc-based score
       const blocScore = metier.blocsClés.reduce((sum, blocId) => {
         const bloc = referentiel.blocs.find((b) => b.id === blocId);
         const weight = bloc?.poids || 1;
         return sum + (blocScoreMap[blocId] || 0) * weight;
       }, 0) / metier.blocsClés.length;
 
-      // Weighted final score with beginner boost
-      const rawScore = (scoreCouverture * 0.6 + blocScore * 0.4);
-      const finalScore = Math.min(rawScore * 1.2, 1); // 20% boost capped at 100%
+      // Base score (no boost)
+      let finalScore = (scoreCouverture * 0.6 + blocScore * 0.4);
 
-      // More generous compatibility thresholds
+      // Apply penalties for unrealistic matches
+      const jobFamily = getJobFamily(metier.id);
+      const jobRequirements = JOB_LEVEL_REQUIREMENTS[metier.id];
+
+      // STRONG penalty if job family doesn't match user's stated preference
+      if (userFamily && compatibleFamilies && jobFamily && !compatibleFamilies.includes(jobFamily)) {
+        finalScore *= 0.25; // 75% penalty for incompatible family
+      }
+
+      // Penalty if job level is too advanced for user
+      if (jobRequirements && !jobRequirements.isJuniorFriendly) {
+        if (avgSkillScore < jobRequirements.minScore) {
+          const levelGap = jobRequirements.minScore - avgSkillScore;
+          finalScore *= Math.max(0.15, 1 - (levelGap * 2.5)); // Strong penalty for level gap
+        }
+      }
+
+      // Realistic compatibility thresholds
       let compatibilite: MetierRecommandation["compatibilite"];
-      if (finalScore >= 0.55) compatibilite = "excellente"; // Was 0.7
-      else if (finalScore >= 0.40) compatibilite = "bonne";   // Was 0.5
-      else if (finalScore >= 0.25) compatibilite = "moyenne"; // Was 0.35
+      if (finalScore >= 0.55) compatibilite = "excellente";
+      else if (finalScore >= 0.40) compatibilite = "bonne";
+      else if (finalScore >= 0.25) compatibilite = "moyenne";
       else compatibilite = "faible";
 
       return {
         metier,
-        score: finalScore,
+        score: Math.min(finalScore, 1),
         scoreCouverture,
         competencesManquantes,
         compatibilite,
@@ -386,18 +474,26 @@ function identifyCompetenceStrengthsWeaknesses(
 
   allCompetenceScores.sort((a, b) => b.score - a.score);
 
-  // Adjusted thresholds for beginners
+  // Realistic thresholds
   const fortes = allCompetenceScores
-    .filter((c) => c.score >= 0.35) // Was 0.5
+    .filter((c) => c.score >= 0.40)
     .slice(0, 5)
     .map((c) => c.name);
 
   const faibles = allCompetenceScores
-    .filter((c) => c.score < 0.25) // Was 0.4
+    .filter((c) => c.score < 0.30)
     .slice(-5)
     .map((c) => c.name);
 
   return { fortes, faibles };
+}
+
+// Determine skill level label
+function getSkillLevelLabel(score: number): string {
+  if (score >= 0.70) return "Avancé";
+  if (score >= 0.50) return "Intermédiaire";
+  if (score >= 0.30) return "Débutant confirmé";
+  return "Débutant";
 }
 
 // Main analysis function
@@ -408,18 +504,15 @@ export function analyzeResponses(
   // Calculate bloc scores
   const blocsScores = calculateBlocScores(responses, referentiel);
 
-  // Calculate global score (weighted average with boost)
+  // Calculate global score (weighted average - no artificial boost)
   const totalWeight = referentiel.blocs.reduce((sum, bloc) => sum + bloc.poids, 0);
-  const rawGlobalScore = blocsScores.reduce((sum, bs) => {
+  const scoreGlobal = blocsScores.reduce((sum, bs) => {
     const bloc = referentiel.blocs.find((b) => b.id === bs.blocId);
     return sum + bs.score * (bloc?.poids || 1);
   }, 0) / totalWeight;
-  
-  // Apply global boost for engagement
-  const scoreGlobal = Math.min(rawGlobalScore * 1.15, 1);
 
-  // Get job recommendations
-  const recommandations = calculateRecommandations(blocsScores, referentiel);
+  // Get job recommendations with user context
+  const recommandations = calculateRecommandations(blocsScores, referentiel, responses);
 
   // Identify strengths and weaknesses
   const { fortes, faibles } = identifyCompetenceStrengthsWeaknesses(blocsScores, referentiel);
@@ -437,31 +530,38 @@ export function analyzeResponses(
 export function createProgressionContext(result: AnalysisResult): string {
   const topRecommandations = result.recommandations.slice(0, 3);
   const competencesAPrioriser = result.competencesFaibles.slice(0, 5);
+  const skillLevel = getSkillLevelLabel(result.scoreGlobal);
 
   return `
 Profil analysé:
 - Score global de compétences: ${(result.scoreGlobal * 100).toFixed(0)}%
+- Niveau estimé: ${skillLevel}
 - Points forts: ${result.competencesFortes.join(", ")}
-- Points à améliorer: ${competencesAPrioriser.join(", ")}
+- Axes d'amélioration: ${competencesAPrioriser.join(", ")}
 
 Métiers recommandés:
-${topRecommandations.map((r, i) => `${i + 1}. ${r.metier.titre} (compatibilité: ${r.compatibilite}, score: ${(r.score * 100).toFixed(0)}%)
-   Compétences manquantes: ${r.competencesManquantes.join(", ") || "Aucune majeure"}`).join("\n")}
+${topRecommandations.map((r, i) => 
+  `${i + 1}. ${r.metier.titre} (compatibilité: ${r.compatibilite}, score: ${(r.score * 100).toFixed(0)}%)`
+).join("\n")}
 
-Scores par domaine:
-${result.blocsScores.map((bs) => `- ${bs.blocNom}: ${(bs.score * 100).toFixed(0)}%`).join("\n")}
+Compétences à développer en priorité pour atteindre les métiers cibles:
+${topRecommandations[0]?.competencesManquantes.slice(0, 5).join(", ") || "Aucune compétence critique manquante"}
 `.trim();
 }
 
 // Export helper for creating bio context
 export function createBioContext(result: AnalysisResult): string {
+  const skillLevel = getSkillLevelLabel(result.scoreGlobal);
+  
   return `
-Points forts: ${result.competencesFortes.join(", ")}
-Domaines d'expertise: ${result.blocsScores
-    .filter((bs) => bs.score >= 0.35) // Adjusted threshold
-    .map((bs) => bs.blocNom)
-    .join(", ") || "En développement"}
-Orientation recommandée: ${result.recommandations[0]?.metier.titre || "Data Professional"}
-Niveau estimé: ${result.scoreGlobal >= 0.55 ? "Intermédiaire" : result.scoreGlobal >= 0.35 ? "Junior prometteur" : "Débutant motivé"}
+Profil professionnel:
+- Niveau global: ${skillLevel} (${(result.scoreGlobal * 100).toFixed(0)}%)
+- Compétences clés: ${result.competencesFortes.join(", ")}
+- Orientations métiers: ${result.recommandations.slice(0, 2).map(r => r.metier.titre).join(", ")}
+- Blocs de compétences principaux: ${result.blocsScores
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 2)
+    .map(b => `${b.blocNom} (${(b.score * 100).toFixed(0)}%)`)
+    .join(", ")}
 `.trim();
 }
