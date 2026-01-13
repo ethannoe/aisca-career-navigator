@@ -43,7 +43,8 @@ export interface QuestionChoixMultiple {
   texte: string;
   options: string[];
   competencesLiees: string[];
-  multiple: boolean;
+  bloc: string;
+  multiple?: boolean;
 }
 
 export interface Referentiel {
