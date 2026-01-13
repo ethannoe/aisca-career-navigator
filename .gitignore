@@ -1,24 +1,31 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Environnements virtuels
+.venv/
+venv/
+env/
 
-node_modules
-dist
-dist-ssr
-*.local
+# Hugging Face / Torch
+.cache/
+.cache/**
+**/.cache/**
+**/huggingface/**
+**/torch/**
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Modèles locaux
+models/
+models/**
+*.pt
+*.bin
+*.safetensors
+
+# Python
+__pycache__/
+*.pyc
+
+# Streamlit
+.streamlit/
+
+# Node
+node_modules/
+
+# OS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?

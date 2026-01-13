@@ -200,64 +200,57 @@
       },
       {
         "id": "Q_O2",
-        "texte": "Décrivez votre expérience avec les modèles de Machine Learning. Quels types de problèmes avez-vous résolus ?",
+        "texte": "Expliquez une problématique de machine learning que vous avez résolue. Comment avez-vous évalué la performance ?",
         "blocsLies": ["B2"],
-        "minWords": 20
+        "minWords": 25
       },
       {
         "id": "Q_O3",
-        "texte": "Avez-vous travaillé sur des projets impliquant le traitement du langage naturel ? Si oui, décrivez-les.",
+        "texte": "Décrivez une expérience en traitement du langage (NLP). Quel modèle ou librairie avez-vous utilisé ?",
         "blocsLies": ["B3"],
-        "minWords": 15
+        "minWords": 20
       },
       {
         "id": "Q_O4",
-        "texte": "Décrivez votre expérience en matière de pipelines de données et d'infrastructure data.",
+        "texte": "Parlez d'un pipeline de données (ETL/ELT) que vous avez conçu ou maintenu.",
         "blocsLies": ["B4"],
-        "minWords": 15
+        "minWords": 20
       },
       {
         "id": "Q_O5",
-        "texte": "Quels sont vos objectifs de carrière dans le domaine de la Data et de l'IA ?",
-        "blocsLies": ["B1", "B2", "B3", "B4", "B5"],
-        "minWords": 15
+        "texte": "Quelle est votre expérience avec l'IA générative (LLM, RAG, fine-tuning) ?",
+        "blocsLies": ["B5"],
+        "minWords": 20
       }
     ],
     "choixMultiples": [
       {
-        "id": "Q_M1",
-        "texte": "Quels langages de programmation maîtrisez-vous ?",
-        "options": ["Python", "R", "SQL", "Java", "Scala", "JavaScript", "Julia"],
-        "competencesLiees": ["C04", "C05"],
-        "multiple": true
-      },
-      {
-        "id": "Q_M2",
-        "texte": "Quels frameworks ML/DL avez-vous utilisés ?",
-        "options": ["Scikit-learn", "TensorFlow", "PyTorch", "Keras", "XGBoost", "LightGBM", "Hugging Face"],
-        "competencesLiees": ["C06", "C07", "C08", "C13"],
-        "multiple": true
-      },
-      {
-        "id": "Q_M3",
-        "texte": "Quelles plateformes Cloud avez-vous utilisées ?",
-        "options": ["AWS", "Google Cloud", "Azure", "Databricks", "Snowflake", "Aucune"],
-        "competencesLiees": ["C17", "C18"],
-        "multiple": true
-      },
-      {
-        "id": "Q_M4",
-        "texte": "Quels outils de visualisation utilisez-vous ?",
-        "options": ["Matplotlib", "Seaborn", "Plotly", "Tableau", "Power BI", "Looker", "D3.js"],
+        "id": "Q_C1",
+        "texte": "Quelles bibliothèques de data viz utilisez-vous ?",
+        "options": ["Matplotlib", "Seaborn", "Plotly", "PowerBI/Tableau"],
         "competencesLiees": ["C02"],
-        "multiple": true
+        "bloc": "B1"
       },
       {
-        "id": "Q_M5",
-        "texte": "Quels outils d'orchestration connaissez-vous ?",
-        "options": ["Apache Airflow", "Prefect", "Luigi", "Dagster", "dbt", "Aucun"],
-        "competencesLiees": ["C19"],
-        "multiple": true
+        "id": "Q_C2",
+        "texte": "Quelles plateformes Cloud avez-vous déjà utilisées ?",
+        "options": ["AWS", "GCP", "Azure", "On-prem"],
+        "competencesLiees": ["C18"],
+        "bloc": "B4"
+      },
+      {
+        "id": "Q_C3",
+        "texte": "Quelles techniques de NLP avez-vous déjà mises en œuvre ?",
+        "options": ["Tokenization", "Word Embeddings", "Transformers", "Sentiment Analysis"],
+        "competencesLiees": ["C11", "C12", "C13", "C15"],
+        "bloc": "B3"
+      },
+      {
+        "id": "Q_C4",
+        "texte": "Quelles briques d'IA générative avez-vous déjà utilisées ?",
+        "options": ["Prompt engineering", "RAG", "Fine-tuning", "Agents"],
+        "competencesLiees": ["C21", "C22", "C23", "C25"],
+        "bloc": "B5"
       }
     ]
   }

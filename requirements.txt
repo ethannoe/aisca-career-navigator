@@ -1,0 +1,16 @@
+streamlit>=1.40.0
+pandas>=2.2.0
+numpy>=1.26.0
+scikit-learn>=1.5.0
+sentence-transformers>=3.0.0
+transformers>=4.45.0
+torch>=2.2.0
+accelerate>=0.33.0
+plotly>=5.20.0
+joblib>=1.4.2
+pytest>=8.3.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+fpdf2>=2.7.9
+xlsxwriter>=3.2.0
+kaleido>=0.2.1
