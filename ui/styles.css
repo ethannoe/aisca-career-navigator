@@ -1,0 +1,301 @@
+:root {
+  --bg: #f7f9fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --primary: #0f766e;
+  --primary-strong: #14b8a6;
+  --accent: #14b8a6;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --radius: 14px;
+  --success: #16a34a;
+  --warning: #f59e0b;
+}
+
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: "Inter", "SF Pro Text", system-ui, -apple-system, sans-serif;
+}
+
+.stApp {
+  background: radial-gradient(circle at 10% 20%, rgba(20, 184, 166, 0.12), transparent 26%),
+    radial-gradient(circle at 80% 10%, rgba(15, 118, 110, 0.10), transparent 30%),
+    var(--bg);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+label,
+span,
+.stMarkdown,
+.stTextInput label,
+.stTextArea label,
+.stSelectbox label {
+  color: var(--text) !important;
+}
+
+/* Metrics lisibles */
+.stMetric label, .stMetric span, .stMetric div {
+  color: var(--text) !important;
+}
+.stMetric .stMetric-value {
+  color: #0f766e !important;
+  font-weight: 800;
+}
+
+.hero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(30, 154, 183, 0.08), rgba(34, 197, 94, 0.12));
+  pointer-events: none;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.card h4 {
+  margin: 0 0 6px 0;
+}
+
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  background: #ecfeff;
+  color: var(--primary-strong);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #bae6fd;
+}
+
+.primary-btn button,
+div[data-testid="stButton"] button,
+button[kind="primary"],
+button[kind="secondary"] {
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong)) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--primary-strong) !important;
+  border-radius: 12px !important;
+  padding: 10px 18px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 25px rgba(20, 184, 166, 0.25) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primary-btn button:hover,
+div[data-testid="stButton"] button:hover,
+button[kind="primary"]:hover,
+button[kind="secondary"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(20, 184, 166, 0.32) !important;
+  filter: brightness(1.02);
+}
+
+.primary-btn button:focus-visible,
+div[data-testid="stButton"] button:focus-visible,
+button[kind="primary"]:focus-visible,
+button[kind="secondary"]:focus-visible {
+  outline: 2px solid #99f6e4 !important;
+  outline-offset: 2px;
+}
+
+.stepper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #e0f2f1;
+  border: 1px solid #c4f1ec;
+  border-radius: 999px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.step-item.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  color: white;
+  border-color: transparent;
+}
+
+.step-item.done {
+  background: #ecfdf3;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.likert-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.likert-btn {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  min-width: 70px;
+  text-align: center;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.likert-btn.active {
+  border-color: var(--primary);
+  background: #e0f2f1;
+  color: var(--primary);
+  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.25);
+}
+
+.helper {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+div[data-baseweb="input"] input,
+div[data-baseweb="textarea"] textarea,
+div[data-testid="stSelectbox"] > div,
+div[data-testid="stMultiSelect"] > div,
+div[data-testid="stTextInput"] input,
+div[data-testid="stTextArea"] textarea {
+  border-radius: 14px !important;
+  border: 1px solid var(--border) !important;
+  background: #ffffff !important;
+  color: var(--text) !important;
+}
+
+div[role="radiogroup"] label,
+div[data-testid="stCheckbox"] label,
+div[data-testid="stRadio"] > div,
+div[data-testid="stSelectbox"] label {
+  color: var(--text) !important;
+}
+
+div[data-testid="stRadio"] label span,
+div[data-testid="stCheckbox"] label span {
+  color: var(--text) !important;
+}
+
+/* Radios / checkboxes tint */
+div[data-testid="stRadio"] input:checked + div,
+div[data-testid="stCheckbox"] input:checked + div {
+  background: #e0f2f1 !important;
+  border-color: var(--primary) !important;
+}
+
+/* RAG snippets */
+.rag-item {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.rag-meter {
+  height: 8px;
+  width: 100%;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.rag-meter span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-strong));
+}
+
+.stProgress > div > div {
+  background: var(--primary) !important;
+}
+
+.metric-badge {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+}
+
+.metric-positive {
+  background: var(--success);
+}
+
+.metric-medium {
+  background: var(--warning);
+  color: #0f172a;
+}
+
+.metric-low {
+  background: #ef4444;
+}
+
+.export-bar button {
+  width: 100%;
+  border-radius: 12px;
+  padding: 10px 12px;
+}

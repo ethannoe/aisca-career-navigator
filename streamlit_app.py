@@ -154,8 +154,8 @@ def make_responses() -> UserResponses:
 def show_bloc_radar(result: AnalysisResult):
     if not result.blocsScores:
         return
-    df = pd.DataFrame({"Bloc": [bloc_label(b.blocId, b.blocNom) for b in result.blocsScores], "Score": [b.score for b in result.blocsScores]})
-    fig = px.line_polar(df, r="Score", theta="Bloc", line_close=True, range_r=[0, 1])
+    df = pd.DataFrame({"Métier": [bloc_label(b.blocId, b.blocNom) for b in result.blocsScores], "Score": [b.score for b in result.blocsScores]})
+    fig = px.line_polar(df, r="Score", theta="Métier", line_close=True, range_r=[0, 1])
     fig.update_traces(fill="toself", line_color=CHART_COLORS[0], fillcolor="rgba(24,154,152,0.20)")
     fig.update_layout(
         polar=dict(radialaxis=dict(showline=False, gridcolor="rgba(0,0,0,0.07)", tickfont=dict(color="var(--foreground)"))),
@@ -171,12 +171,12 @@ def show_competence_table(result: AnalysisResult):
     records = []
     for bloc in result.blocsScores:
         for comp, score in bloc.competenceScores.items():
-            records.append({"Bloc": bloc_label(bloc.blocId, bloc.blocNom), "Compétence": competence_label(comp), "Score": round(score, 3)})
+            records.append({"Métier": bloc_label(bloc.blocId, bloc.blocNom), "Compétence": competence_label(comp), "Score": round(score, 3)})
     if not records:
         st.info("Aucun score disponible.")
         return
     df = pd.DataFrame(records)
-    df = df.groupby(["Bloc", "Compétence"], as_index=False)["Score"].mean()
+    df = df.groupby(["Métier", "Compétence"], as_index=False)["Score"].mean()
     df = df.sort_values(by="Score", ascending=False)
     st.dataframe(df, use_container_width=True, hide_index=True)
 
@@ -184,7 +184,7 @@ def show_competence_table(result: AnalysisResult):
         df,
         x="Score",
         y="Compétence",
-        color="Bloc",
+        color="Métier",
         orientation="h",
         range_x=[0, 1],
         color_discrete_sequence=CHART_COLORS,
@@ -257,7 +257,7 @@ def collect_responses_by_bloc(responses: UserResponses):
     for qid, value in responses.likert.items():
         meta = QUESTION_BY_ID.get(qid, {})
         rows.append({
-            "Bloc": bloc_label(meta.get("bloc", ""), meta.get("bloc", "")),
+            "Métier": bloc_label(meta.get("bloc", ""), meta.get("bloc", "")),
             "Type": "Likert",
             "Question": meta.get("texte", qid),
             "Réponse": str(value),
@@ -266,7 +266,7 @@ def collect_responses_by_bloc(responses: UserResponses):
     for qid, value in responses.ouvertes.items():
         meta = QUESTION_BY_ID.get(qid, {})
         rows.append({
-            "Bloc": bloc_label(meta.get("bloc", ""), meta.get("bloc", "")),
+            "Métier": bloc_label(meta.get("bloc", ""), meta.get("bloc", "")),
             "Type": "Ouverte",
             "Question": meta.get("texte", qid),
             "Réponse": value,
@@ -275,7 +275,7 @@ def collect_responses_by_bloc(responses: UserResponses):
     for qid, value in responses.choixMultiples.items():
         meta = QUESTION_BY_ID.get(qid, {})
         rows.append({
-            "Bloc": bloc_label(meta.get("bloc", ""), meta.get("bloc", "")),
+            "Métier": bloc_label(meta.get("bloc", ""), meta.get("bloc", "")),
             "Type": "Choix multiples",
             "Question": meta.get("texte", qid),
             "Réponse": ", ".join(value),
@@ -291,9 +291,9 @@ def export_pdf(result: AnalysisResult, responses: UserResponses, buf: io.BytesIO
     pdf.set_font("Arial", "", 11)
     pdf.multi_cell(0, 8, f"Score global: {result.scoreGlobal*100:.1f}%")
 
-    # Scores blocs
+    # Scores métiers
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 8, "Scores par bloc", ln=1)
+    pdf.cell(0, 8, "Scores par métier", ln=1)
     pdf.set_font("Arial", "", 11)
     for b in result.blocsScores:
         pdf.multi_cell(0, 7, f"- {bloc_label(b.blocId, b.blocNom)} : {b.score*100:.1f}%")
@@ -319,9 +319,9 @@ def export_pdf(result: AnalysisResult, responses: UserResponses, buf: io.BytesIO
 
     # Graphiques : radar + bar recos
     try:
-        # Radar blocs
-        radar_df = pd.DataFrame({"Bloc": [bloc_label(b.blocId, b.blocNom) for b in result.blocsScores], "Score": [b.score for b in result.blocsScores]})
-        radar_fig = px.line_polar(radar_df, r="Score", theta="Bloc", line_close=True, range_r=[0, 1])
+        # Radar métiers
+        radar_df = pd.DataFrame({"Métier": [bloc_label(b.blocId, b.blocNom) for b in result.blocsScores], "Score": [b.score for b in result.blocsScores]})
+        radar_fig = px.line_polar(radar_df, r="Score", theta="Métier", line_close=True, range_r=[0, 1])
         radar_fig.update_traces(fill="toself", line_color=CHART_COLORS[0], fillcolor="rgba(24,154,152,0.20)")
         radar_fig.update_layout(paper_bgcolor="white", plot_bgcolor="white")
 
@@ -348,12 +348,12 @@ def export_pdf(result: AnalysisResult, responses: UserResponses, buf: io.BytesIO
     except Exception:
         pdf.multi_cell(0, 7, "Graphiques non disponibles dans cet export.")
 
-    # Réponses par bloc
+    # Réponses par métier
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 8, "Réponses par bloc", ln=1)
+    pdf.cell(0, 8, "Réponses par métier", ln=1)
     pdf.set_font("Arial", "", 11)
     for row in collect_responses_by_bloc(responses):
-        pdf.multi_cell(0, 6, f"[{row['Bloc']}] {row['Type']}: {row['Question']} => {row['Réponse']}")
+        pdf.multi_cell(0, 6, f"[{row['Métier']}] {row['Type']}: {row['Question']} => {row['Réponse']}")
 
     pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 8, "Plan de progression", ln=1)
@@ -375,7 +375,7 @@ def export_excel(result: AnalysisResult, responses: UserResponses, buf: io.Bytes
     for bloc in result.blocsScores:
         for comp, score in bloc.competenceScores.items():
             rows.append({
-                "Bloc": bloc_label(bloc.blocId, bloc.blocNom),
+                "Métier": bloc_label(bloc.blocId, bloc.blocNom),
                 "Compétence": competence_label(comp),
                 "Score": score,
             })
@@ -385,7 +385,7 @@ def export_excel(result: AnalysisResult, responses: UserResponses, buf: io.Bytes
         "Compatibilité": [r.compatibilite for r in result.recommandations],
     })
     blocs_df = pd.DataFrame({
-        "Bloc": [bloc_label(b.blocId, b.blocNom) for b in result.blocsScores],
+        "Métier": [bloc_label(b.blocId, b.blocNom) for b in result.blocsScores],
         "Score": [b.score for b in result.blocsScores],
     })
     responses_df = pd.DataFrame(collect_responses_by_bloc(responses))
@@ -393,14 +393,14 @@ def export_excel(result: AnalysisResult, responses: UserResponses, buf: io.Bytes
     with pd.ExcelWriter(buf, engine="xlsxwriter") as writer:
         pd.DataFrame(rows).to_excel(writer, sheet_name="Compétences", index=False)
         recs.to_excel(writer, sheet_name="Recommandations", index=False)
-        blocs_df.to_excel(writer, sheet_name="Blocs", index=False)
+        blocs_df.to_excel(writer, sheet_name="Métiers", index=False)
         responses_df.to_excel(writer, sheet_name="Réponses", index=False)
 
     buf.seek(0)
 
 
 def run_app():
-    st.title("AISCA – Navigator RNCP Bloc 2 (local)")
+    st.title("AISCA – Navigator Métiers (local)")
     st.write(
         "Pipeline local : embeddings SBERT, similarité cosinus, scoring, recommandation, génération Flan-T5 sans API externe."
     )
@@ -416,7 +416,7 @@ def run_app():
             st.markdown('<div class="section-card">', unsafe_allow_html=True)
             c1, c2 = st.columns([2, 1])
             with c1:
-                st.subheader("Radar des blocs")
+                st.subheader("Radar des métiers")
                 show_bloc_radar(result)
             with c2:
                 st.subheader("Score global")

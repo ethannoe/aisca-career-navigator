@@ -55,6 +55,58 @@ SIMILAR_COMPETENCE_GROUPS: Dict[str, List[str]] = {
     "C12": ["C12", "C14", "C15"],  # Word Embeddings / Analyse sémantique / Sentiment
 }
 
+# -------------------------------------------------------
+# Mapping questions -> compétences (désambiguisé)
+# Chaque question/option pointe vers 1-2 compétences maximum pour éviter
+# les gonflements transverses et mieux différencier les métiers.
+# -------------------------------------------------------
+LIKERT_COMP_MAPPING: Dict[str, List[str]] = {
+    "Q_L1": ["C04"],                      # Python
+    "Q_L2": ["C06", "C09"],             # ML: classification + évaluation
+    "Q_L3": ["C02"],                      # Data viz
+    "Q_L4": ["C05"],                      # SQL
+    "Q_L5": ["C13", "C14"],             # NLP (Transformers + sémantique)
+    "Q_L6": ["C18"],                      # Cloud
+    "Q_L7": ["C21", "C22"],             # GenAI (prompting + RAG)
+    "Q_L8": ["C19"],                      # Orchestration / CI-CD / Airflow
+    "Q_L9": ["C20"],                      # Data/Model quality & monitoring
+    "Q_L10": ["C25"],                     # Agents / LangChain
+}
+
+# QCM: mapping par option (1 à 2 compétences max)
+MULTI_OPTION_MAPPING: Dict[str, Dict[str, List[str]]] = {
+    "Q_C1": {
+        "Matplotlib": ["C02"],
+        "Seaborn": ["C02"],
+        "Plotly": ["C02"],
+        "PowerBI/Tableau": ["C03"],  # Stat+dataviz métier
+    },
+    "Q_C2": {
+        "AWS": ["C18"],
+        "GCP": ["C18"],
+        "Azure": ["C18"],
+        "On-prem": ["C19"],
+    },
+    "Q_C3": {
+        "Tokenization": ["C11"],
+        "Word Embeddings": ["C12"],
+        "Transformers": ["C13"],
+        "Sentiment Analysis": ["C15"],
+    },
+    "Q_C4": {
+        "Prompt engineering": ["C21"],
+        "RAG": ["C22"],
+        "Fine-tuning": ["C23"],
+        "Agents": ["C25"],
+    },
+    "Q_C5": {
+        "Docker/Kubernetes": ["C18"],
+        "CI/CD (GitHub Actions/GitLab CI)": ["C19"],
+        "Airflow/Prefect": ["C19"],
+        "MLflow/Model Registry": ["C20"],
+    },
+}
+
 
 def canonical_competence_id(comp_id: str) -> str:
     for canonical, group in SIMILAR_COMPETENCE_GROUPS.items():
@@ -149,8 +201,9 @@ def score_likert(responses: UserResponses, referentiel: Referentiel) -> Dict[str
         response = responses.likert.get(q.id)
         if response is None:
             continue
+        comp_list = LIKERT_COMP_MAPPING.get(q.id, q.competencesLiees)
         score = LIKERT_SCORE_MAP.get(response, response / 5)
-        for comp_id in q.competencesLiees:
+        for comp_id in comp_list:
             scores[comp_id] = max(scores.get(comp_id, 0), score)
     return scores
 
@@ -161,9 +214,15 @@ def score_multiple_choice(responses: UserResponses, referentiel: Referentiel) ->
         selected = responses.choixMultiples.get(q.id, [])
         if not selected:
             continue
-        relevance = min(len(selected) / max(len(q.options), 1), 1.0)
-        for comp_id in q.competencesLiees:
-            scores[comp_id] = max(scores.get(comp_id, 0), relevance)
+        option_map = MULTI_OPTION_MAPPING.get(q.id, {})
+        for opt in selected:
+            comp_list = option_map.get(opt, [])
+            if not comp_list:
+                # fallback: répartir sur compétences liées génériques si aucune correspondance spécifique
+                comp_list = q.competencesLiees
+            for comp_id in comp_list:
+                # Chaque sélection alimente directement la compétence associée (max pour éviter doublons)
+                scores[comp_id] = max(scores.get(comp_id, 0), 1.0)
     return scores
 
 
@@ -194,15 +253,15 @@ def aggregate_competence_scores(
     likert_scores: Dict[str, float],
     open_scores: Dict[str, float],
     multi_scores: Dict[str, float],
-    participation: float = 0.05,
+    participation: float = 0.0,
 ) -> Dict[str, float]:
     all_ids = set(likert_scores.keys()) | set(open_scores.keys()) | set(multi_scores.keys())
     raw: Dict[str, float] = {}
     for comp_id in all_ids:
         score = (
             0.25 * likert_scores.get(comp_id, 0)
-            + 0.55 * open_scores.get(comp_id, 0)
-            + 0.15 * multi_scores.get(comp_id, 0)
+            + 0.30 * open_scores.get(comp_id, 0)
+            + 0.45 * multi_scores.get(comp_id, 0)
             + participation
         )
         raw[comp_id] = float(np.clip(score, 0, 1))
@@ -269,6 +328,8 @@ def recommend_jobs(
 ) -> List[Recommendation]:
     bloc_map = {b.blocId: b.score for b in bloc_scores}
     avg_skill = np.mean(list(competence_scores.values())) if competence_scores else 0.0
+    # Bloc dominant : on veut favoriser les métiers alignés sur le bloc le mieux scoré
+    dominant_bloc = max(bloc_scores, key=lambda b: b.score).blocId if bloc_scores else None
 
     recommendations: List[Recommendation] = []
     for metier in referentiel.metiers:
@@ -276,11 +337,19 @@ def recommend_jobs(
         score_couv = float(np.mean(required_scores)) if required_scores else 0.0
 
         bloc_score = np.mean([bloc_map.get(bid, 0) for bid in metier.blocsClés]) if metier.blocsClés else 0.0
-        final = 0.55 * bloc_score + 0.45 * score_couv
+        final = 0.60 * bloc_score + 0.40 * score_couv
 
-        if avg_skill < metier.seuilMinimum:
-            gap = metier.seuilMinimum - avg_skill
-            final *= max(0.45, 1 - gap)
+        # Pénalité senior si couverture < seuil
+        if score_couv < metier.seuilMinimum:
+            ratio = max(0.35, score_couv / max(metier.seuilMinimum, 1e-6))
+            final *= ratio
+
+        # Bonus si le bloc dominant de l'utilisateur est clé pour ce métier, sinon légère pénalité
+        if dominant_bloc and metier.blocsClés:
+            if dominant_bloc in metier.blocsClés:
+                final *= 1.08
+            else:
+                final *= 0.9
 
         final = float(np.clip(final, 0, 1))
 
@@ -379,11 +448,8 @@ def analyze_user_profile(
     multi_scores = score_multiple_choice(responses, referentiel)
     open_scores = score_open_questions(responses, competence_embeddings, model_name)
 
-    has_participation = bool(responses.likert or responses.ouvertes or responses.choixMultiples)
-    participation_bonus = 0.06 if has_participation else 0.0
-
     competence_scores = aggregate_competence_scores(
-        likert_scores, open_scores, multi_scores, participation=participation_bonus
+        likert_scores, open_scores, multi_scores, participation=0.0
     )
     bloc_scores = compute_bloc_scores(competence_scores, referentiel)
     recommandations = recommend_jobs(bloc_scores, competence_scores, referentiel)

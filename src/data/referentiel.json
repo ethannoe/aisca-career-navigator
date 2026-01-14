@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2024-12-09",
-  "description": "Référentiel AISCA - Compétences Data Engineering & AI",
+  "version": "1.1.0",
+  "lastUpdated": "2026-01-13",
+  "description": "Référentiel AISCA - Compétences Data Engineering & AI (mapping affiné métiers/compétences)",
   
   "blocs": [
     {
@@ -77,7 +77,7 @@
       "titre": "Data Analyst",
       "description": "Analyse et interprétation des données pour aider à la prise de décision",
       "niveau": "Junior à Senior",
-      "competencesRequises": ["C01", "C02", "C03", "C04", "C05"],
+      "competencesRequises": ["C01", "C02", "C03", "C05"],
       "blocsClés": ["B1"],
       "seuilMinimum": 0.6
     },
@@ -86,8 +86,8 @@
       "titre": "Data Scientist",
       "description": "Conception de modèles prédictifs et solutions d'intelligence artificielle",
       "niveau": "Senior",
-      "competencesRequises": ["C01", "C02", "C04", "C06", "C07", "C08", "C09", "C10"],
-      "blocsClés": ["B1", "B2"],
+      "competencesRequises": ["C04", "C06", "C07", "C08", "C09", "C10"],
+      "blocsClés": ["B2", "B1"],
       "seuilMinimum": 0.65
     },
     {
@@ -95,7 +95,7 @@
       "titre": "Machine Learning Engineer",
       "description": "Industrialisation et déploiement de modèles ML en production",
       "niveau": "Senior",
-      "competencesRequises": ["C04", "C06", "C07", "C08", "C09", "C16", "C18"],
+      "competencesRequises": ["C04", "C06", "C08", "C09", "C16", "C18", "C19"],
       "blocsClés": ["B2", "B4"],
       "seuilMinimum": 0.65
     },
@@ -104,7 +104,7 @@
       "titre": "NLP Engineer",
       "description": "Spécialiste du traitement automatique du langage naturel",
       "niveau": "Senior",
-      "competencesRequises": ["C04", "C08", "C11", "C12", "C13", "C14", "C15"],
+      "competencesRequises": ["C11", "C12", "C13", "C14", "C15", "C08"],
       "blocsClés": ["B3", "B2"],
       "seuilMinimum": 0.6
     },
@@ -113,7 +113,7 @@
       "titre": "Data Engineer",
       "description": "Conception et maintenance de l'infrastructure de données",
       "niveau": "Mid à Senior",
-      "competencesRequises": ["C04", "C05", "C16", "C17", "C18", "C19", "C20"],
+      "competencesRequises": ["C05", "C16", "C17", "C18", "C19", "C20"],
       "blocsClés": ["B4", "B1"],
       "seuilMinimum": 0.6
     },
@@ -122,7 +122,7 @@
       "titre": "AI Engineer",
       "description": "Développement de solutions d'IA générative et de systèmes intelligents",
       "niveau": "Senior",
-      "competencesRequises": ["C04", "C08", "C13", "C21", "C22", "C23", "C24", "C25"],
+      "competencesRequises": ["C13", "C21", "C22", "C23", "C24", "C25", "C18"],
       "blocsClés": ["B5", "B3", "B2"],
       "seuilMinimum": 0.65
     },
@@ -140,7 +140,7 @@
       "titre": "MLOps Engineer",
       "description": "Automatisation et gestion du cycle de vie des modèles ML",
       "niveau": "Senior",
-      "competencesRequises": ["C09", "C16", "C18", "C19", "C20"],
+      "competencesRequises": ["C06", "C09", "C16", "C18", "C19", "C20"],
       "blocsClés": ["B4", "B2"],
       "seuilMinimum": 0.6
     }
@@ -188,6 +188,24 @@
         "id": "Q_L7",
         "texte": "Quel est votre niveau de maîtrise de l'IA Générative et des LLMs ?",
         "competencesLiees": ["C21", "C22", "C24"],
+        "bloc": "B5"
+      },
+      {
+        "id": "Q_L8",
+        "texte": "Quel est votre niveau en orchestration/MLOps (Airflow, CI/CD, monitoring) ?",
+        "competencesLiees": ["C19", "C20"],
+        "bloc": "B4"
+      },
+      {
+        "id": "Q_L9",
+        "texte": "Quel est votre niveau en qualité et observabilité des données/modèles ?",
+        "competencesLiees": ["C20"],
+        "bloc": "B4"
+      },
+      {
+        "id": "Q_L10",
+        "texte": "Quel est votre niveau sur les agents IA (LangChain, orchestration d'outils) ?",
+        "competencesLiees": ["C25"],
         "bloc": "B5"
       }
     ],
@@ -251,6 +269,13 @@
         "options": ["Prompt engineering", "RAG", "Fine-tuning", "Agents"],
         "competencesLiees": ["C21", "C22", "C23", "C25"],
         "bloc": "B5"
+      },
+      {
+        "id": "Q_C5",
+        "texte": "Quels outils d'industrialisation ML/ops utilisez-vous ?",
+        "options": ["Docker/Kubernetes", "CI/CD (GitHub Actions/GitLab CI)", "Airflow/Prefect", "MLflow/Model Registry"],
+        "competencesLiees": ["C18", "C19", "C19", "C20"],
+        "bloc": "B4"
       }
     ]
   }

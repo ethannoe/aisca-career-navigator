@@ -7,8 +7,8 @@
 @layer base {
   :root {
     /* AISCA Design System - Professional Data Science Aesthetic */
-    --background: 210 25% 97%;
-    --foreground: 215 25% 12%;
+  --background: 210 22% 98%;
+  --foreground: 215 22% 14%;
 
     --card: 0 0% 100%;
     --card-foreground: 215 25% 12%;
@@ -16,48 +16,48 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 12%;
 
-    /* Primary - Deep Teal */
-    --primary: 185 70% 28%;
+  /* Primary - Teal soft */
+  --primary: 186 58% 42%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Soft Slate */
-    --secondary: 210 20% 92%;
-    --secondary-foreground: 215 25% 25%;
+  /* Secondary - Light slate */
+  --secondary: 210 18% 95%;
+  --secondary-foreground: 215 20% 28%;
 
     /* Muted */
-    --muted: 210 20% 94%;
-    --muted-foreground: 215 15% 45%;
+  --muted: 210 16% 90%;
+  --muted-foreground: 215 12% 45%;
 
-    /* Accent - Electric Blue */
-    --accent: 200 90% 50%;
+  /* Accent - Soft blue */
+  --accent: 199 72% 50%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive */
-    --destructive: 0 70% 55%;
+  --destructive: 0 68% 52%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders */
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 185 70% 28%;
+  --border: 210 12% 90%;
+  --input: 210 12% 90%;
+  --ring: 186 58% 42%;
 
     --radius: 0.75rem;
 
     /* Custom Colors */
-    --teal-glow: 185 70% 45%;
-    --chart-1: 185 70% 35%;
-    --chart-2: 200 80% 50%;
-    --chart-3: 160 60% 45%;
-    --chart-4: 220 70% 55%;
-    --chart-5: 280 60% 55%;
-    --success: 160 70% 40%;
-    --warning: 40 95% 55%;
+  --teal-glow: 186 60% 48%;
+  --chart-1: 186 58% 42%;
+  --chart-2: 199 68% 50%;
+  --chart-3: 158 45% 42%;
+  --chart-4: 220 55% 52%;
+  --chart-5: 280 50% 55%;
+  --success: 158 58% 40%;
+  --warning: 40 88% 54%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(185, 70%, 28%) 0%, hsl(200, 80%, 40%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(210, 25%, 97%) 0%, hsl(200, 30%, 92%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(210, 20%, 98%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(200, 90%, 50%) 0%, hsl(185, 70%, 45%) 100%);
+  --gradient-primary: linear-gradient(135deg, hsl(186, 58%, 42%) 0%, hsl(199, 68%, 48%) 100%);
+  --gradient-hero: linear-gradient(180deg, hsl(210, 22%, 98%) 0%, hsl(200, 22%, 94%) 100%);
+  --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(210, 15%, 97%) 100%);
+  --gradient-accent: linear-gradient(135deg, hsl(199, 72%, 50%) 0%, hsl(186, 60%, 48%) 100%);
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(215 25% 12% / 0.05);
