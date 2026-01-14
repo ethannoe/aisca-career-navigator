@@ -135,7 +135,7 @@ def likert_row(question_id: str, label: str, helper: str | None = None):
         st.markdown(f"<div class='helper'>{helper}</div>", unsafe_allow_html=True)
     current = st.session_state["responses"]["likert"].get(question_id, 3)
     value = st.radio(
-        "",
+        label,
         options=[1, 2, 3, 4, 5],
         index=max(min(current, 5), 1) - 1,
         key=f"likert_{question_id}",
